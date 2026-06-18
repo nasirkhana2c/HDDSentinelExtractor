@@ -46,7 +46,7 @@ namespace HDDSentinelExtractor
                 {
                     File.Delete(destFile);
                 }
-                File.Move(filePath, destFile, OverrideMode.Allow);
+                File.Move(filePath, destFile);
             }
 
 

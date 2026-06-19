@@ -121,76 +121,6 @@ namespace HDDSentinelExtractor
             }
             return lst;
         }
-        public static List<StorageDetails> GetFileNamesFromFolder()
-        {
-            string fileName = "";
-            List<StorageDetails> lst = new List<StorageDetails>();
-            StorageDetails obj;
-            dbLayer db = new dbLayer();
-            List<string> lstDBFileNames = db.GetExistingFilesNames();
-
-            string folderPath = @"C:\AppData\StorageFile";
-            string archivePath = @"C:\AppData\StorageFile\Archieve";
-            //string folderPath = @"C:\Users\user\Downloads\HDSenti";
-            //string archivePath = @"C:\Users\user\Downloads\HDSenti\Archieve";
-
-            var files = Directory.GetFiles(folderPath, "*.xml").ToList<string>();
-
-            //files = files.Where(f => !lstDBFileNames.Contains(f)).ToList();
-            foreach (var file in files)
-            {
-                fileName = Path.GetFileName(file);
-                if (lstDBFileNames.IndexOf(fileName) >= 0)
-                {
-                    continue;
-                }
-                try
-                {
-                    XDocument doc = XDocument.Load(file);
-
-                    //var disks = doc.Root
-                    //               .Elements()
-                    //               .Where(x => x.Name.LocalName.StartsWith("Physical_Disk_Information_Disk_"));
-
-                    var disks = doc.XPathSelectElements("//*[starts-with(name(),'Physical_Disk_Information_Disk_')]");
-
-                    foreach (var disk in disks)
-                    {
-                        var summary = disk.Element("Hard_Disk_Summary");
-
-                        if (summary != null)
-                        {
-                            obj = new StorageDetails();
-                            obj.FileName = fileName;
-                            obj.Model = summary.Element("Hard_Disk_Model_ID")?.Value;
-                            obj.DiskSerialNumber = summary.Element("Hard_Disk_Serial_Number")?.Value;
-                            obj.DiskSize = summary.Element("Total_Size")?.Value;
-                            obj.Health = summary.Element("Health")?.Value;
-                            obj.Performance = summary.Element("Performance")?.Value;
-                            lst.Add(obj);
-                        }
-                    }
-
-                    string destFile = Path.Combine(archivePath, Path.GetFileName(file));
-
-                    // If file already exists, overwrite
-                    if (File.Exists(destFile))
-                        File.Delete(destFile);
-
-                    File.Move(file, destFile);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Error reading file: " + ex.Message);
-                }
-            }
-
-
-
-
-
-            return lst;
-        }
     }
 
     public class DiskReportParser
@@ -258,14 +188,6 @@ namespace HDDSentinelExtractor
         {
             // Strip leading # and - characters, trim whitespace
             return Regex.Replace(raw, @"^[#\-\s]+", "").Trim();
-        }
-
-        private static int ExtractInt(string text, string pattern)
-        {
-            var match = Regex.Match(text, pattern, RegexOptions.IgnoreCase);
-            if (match.Success && int.TryParse(match.Groups[1].Value.Trim(), out int result))
-                return result;
-            return -1;
         }
     }
 }

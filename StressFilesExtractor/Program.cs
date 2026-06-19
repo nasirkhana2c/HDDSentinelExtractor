@@ -30,7 +30,7 @@ namespace HDDSentinelExtractor
             {
                 lstFileStatus = db.SaveFileStorageDetails(lstStorageDetails);
             }
-            if (lstFileStatus.Count() > 1)
+            if (lstFileStatus.Count() > 0)
             {
                 ProcessFiles(lstFileStatus, lstStorageDetails);
             }

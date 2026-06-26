@@ -45,10 +45,12 @@ namespace HDDSentinelExtractor
             dataTable.Columns.Add("DiskSize", typeof(string));
             dataTable.Columns.Add("Health", typeof(string));
             dataTable.Columns.Add("Performance", typeof(string));
+            dataTable.Columns.Add("TestDateTime", typeof(string));
+            dataTable.Columns.Add("FileLocation", typeof(string));
 
             foreach (var item in lstStorage)
             {
-                dataTable.Rows.Add(item.FileName, item.Model, item.DiskSerialNumber, item.DiskSize, item.Health, item.Performance);
+                dataTable.Rows.Add(item.FileName, item.Model, item.DiskSerialNumber, item.DiskSize, item.Health, item.Performance, item.TestDateTime, item.FilePath.Contains("WH1")? "WH1": "WH2");
             }
 
             using (SqlConnection myConnection = new SqlConnection(connectionString))
@@ -57,6 +59,7 @@ namespace HDDSentinelExtractor
                 using (SqlCommand cmd = new SqlCommand("spSaveHDDSentinelFileDetails", myConnection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandTimeout = 1000;
                     myConnection.Open();
 
                     cmd.Parameters.AddWithValue("@HDDSentinelDetail", dataTable);

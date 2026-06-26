@@ -16,6 +16,7 @@ namespace HDDSentinelExtractor
         public string Performance { get; set; }
         public string ArchivePath { get; set; }
         public string FilePath { get; set; }
+        public string TestDateTime { get; set; }
         
     }
     public class FileStatus

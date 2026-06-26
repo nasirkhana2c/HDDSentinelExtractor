@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using static System.Collections.Specialized.BitVector32;
 
 
 namespace HDDSentinelExtractor
@@ -25,11 +26,18 @@ namespace HDDSentinelExtractor
             string WH2Archive = ConfigurationManager.AppSettings["WH2ArchivePath"];
 
             lstStorageDetails = GetTextFileNamesFromFolder(WH1Path, WH1Archive);
-            lstStorageDetails.AddRange(GetTextFileNamesFromFolder(WH2Path, WH2Archive));
+            
             if (lstStorageDetails.Count() > 0)
             {
                 lstFileStatus = db.SaveFileStorageDetails(lstStorageDetails);
             }
+
+            lstStorageDetails = GetTextFileNamesFromFolder(WH2Path, WH2Archive);
+            if (lstStorageDetails.Count() > 0)
+            {
+                lstFileStatus.AddRange(db.SaveFileStorageDetails(lstStorageDetails));
+            }
+
             if (lstFileStatus.Count() > 0)
             {
                 ProcessFiles(lstFileStatus, lstStorageDetails);
@@ -136,6 +144,7 @@ namespace HDDSentinelExtractor
             var lst = new List<StorageDetails>();
 
             var disks = new StorageDetails();
+            string reportDateTime = ExtractCleanValue(ExtractValue(content, @"Current Date And Time\s*[\.\s]+:\s*(.+)"));
 
             var diskSections = Regex.Split(content, @"(?=--\s*Physical Disk Information\s*-\s*Disk:\s*#\d+)");
 
@@ -150,6 +159,7 @@ namespace HDDSentinelExtractor
                 disks.DiskSize = ExtractValue(section, @"Total Size\s*[\.\s]+:\s*(.+)");
                 disks.Health = ExtractCleanValue(ExtractValue(section, @"Health\s*[\.\s]+:\s*(.+)"));
                 disks.Performance = ExtractCleanValue(ExtractValue(section, @"Performance\s*[\.\s]+:\s*(.+)"));
+                disks.TestDateTime = reportDateTime;
                 disks.ArchivePath = archivePath;
                 disks.FilePath = filePath;
                 lst.Add(disks);

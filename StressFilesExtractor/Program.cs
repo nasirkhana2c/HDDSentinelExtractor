@@ -18,29 +18,30 @@ namespace HDDSentinelExtractor
         static void Main(string[] args)
         {
             dbLayer db = new dbLayer();
-            List<StorageDetails> lstStorageDetails = new List<StorageDetails>();
+            List<StorageDetails> lstStorageDetailsWH1 = new List<StorageDetails>();
+            List<StorageDetails> lstStorageDetailsWH2 = new List<StorageDetails>();
             List<FileStatus> lstFileStatus = new List<FileStatus>();
             string WH1Path = ConfigurationManager.AppSettings["WH1Path"];
             string WH2Path = ConfigurationManager.AppSettings["WH2Path"];
             string WH1Archive = ConfigurationManager.AppSettings["WH1ArchivePath"];
             string WH2Archive = ConfigurationManager.AppSettings["WH2ArchivePath"];
 
-            lstStorageDetails = GetTextFileNamesFromFolder(WH1Path, WH1Archive);
+            lstStorageDetailsWH1 = GetTextFileNamesFromFolder(WH1Path, WH1Archive);
             
-            if (lstStorageDetails.Count() > 0)
+            if (lstStorageDetailsWH1.Count() > 0)
             {
-                lstFileStatus = db.SaveFileStorageDetails(lstStorageDetails);
+                lstFileStatus = db.SaveFileStorageDetails(lstStorageDetailsWH1);
             }
 
-            lstStorageDetails = GetTextFileNamesFromFolder(WH2Path, WH2Archive);
-            if (lstStorageDetails.Count() > 0)
+            lstStorageDetailsWH2 = GetTextFileNamesFromFolder(WH2Path, WH2Archive);
+            if (lstStorageDetailsWH2.Count() > 0)
             {
-                lstFileStatus.AddRange(db.SaveFileStorageDetails(lstStorageDetails));
+                lstFileStatus.AddRange(db.SaveFileStorageDetails(lstStorageDetailsWH2));
             }
 
             if (lstFileStatus.Count() > 0)
             {
-                ProcessFiles(lstFileStatus, lstStorageDetails);
+                ProcessFiles(lstFileStatus, lstStorageDetailsWH1.Concat(lstStorageDetailsWH2).ToList());
             }
         }
 
